@@ -1,0 +1,29 @@
+server:
+  port: 8000
+
+spring:
+  application:
+    name: rust-detection-backend
+  datasource:
+
+    url: jdbc:mysql://localhost:3306/metal_corrosion_db?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+
+    username: root
+    password: "0000"
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl # Print SQL logs
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted # If logic delete is needed
+
+jwt:
+  secret: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" # Example 256-bit key
+  expiration: 86400000
