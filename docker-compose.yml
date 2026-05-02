@@ -1,52 +1,43 @@
-# -------------------------
-# 1. 数据库服务 (MySQL)
-# -------------------------
-version: '3.8'
-
 services:
   mysql:
     image: swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/mysql:8.0
     container_name: rust-mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: "0000"
-      MYSQL_DATABASE: "metal_corrosion_db"
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-0000}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-metal_corrosion_db}
       TZ: Asia/Shanghai
     ports:
-      - "3306:3306"
+      - "${MYSQL_PORT:-3306}:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      # 如果你有初始化的 sql 脚本，可以取消下面的注释，把 init.sql 挂载进去，它会自动在首次启动时建表
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     networks:
       - rust-network
 
-# -------------------------
-# 2. 后端服务 (Spring Boot + Python)
-# -------------------------
   backend:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
     container_name: rust-backend
     restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "${BACKEND_PORT:-8000}:8000"
     environment:
-      # 覆盖 application.yml 中的数据库连接，指向 mysql 容器
-      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/metal_corrosion_db?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai"
-      SPRING_DATASOURCE_USERNAME: "root"
-      SPRING_DATASOURCE_PASSWORD: "0000"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-metal_corrosion_db}?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai"
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-root}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-0000}
+      JWT_SECRET: ${JWT_SECRET:-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855}
+      APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS:-http://localhost,http://localhost:3000,http://127.0.0.1,http://127.0.0.1:3000,http://8.159.143.133,http://8.159.143.133:3000}
+      APP_STORAGE_IMAGE_LOCATION: ${APP_STORAGE_IMAGE_LOCATION:-file:/app/images/}
       TZ: Asia/Shanghai
     volumes:
-      # 将容器内的 images 目录映射到宿主机的 images 目录，使得图片可以被宿主机直接读取
       - ./images:/app/images
     depends_on:
       - mysql
     networks:
       - rust-network
 
-# 声明数据卷和网络
 volumes:
   mysql_data:
 

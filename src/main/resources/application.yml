@@ -5,11 +5,9 @@ spring:
   application:
     name: rust-detection-backend
   datasource:
-
-    url: jdbc:mysql://localhost:3306/metal_corrosion_db?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
-
-    username: root
-    password: "0000"
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/metal_corrosion_db?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:0000}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
@@ -18,12 +16,18 @@ spring:
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl # Print SQL logs
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   global-config:
     db-config:
       id-type: auto
-      logic-delete-field: deleted # If logic delete is needed
+      logic-delete-field: deleted
 
 jwt:
-  secret: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" # Example 256-bit key
-  expiration: 86400000
+  secret: ${JWT_SECRET:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855}
+  expiration: ${JWT_EXPIRATION:86400000}
+
+app:
+  cors:
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost,http://localhost:3000,http://127.0.0.1,http://127.0.0.1:3000,http://8.159.143.133,http://8.159.143.133:3000}
+  storage:
+    image-location: ${APP_STORAGE_IMAGE_LOCATION:file:./images/}
