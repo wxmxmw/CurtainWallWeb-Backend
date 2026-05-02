@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("api/corrosion/benchmarks")
+@RequestMapping({"/api/corrosion/benchmarks", "/benchmarks"})
 @RequiredArgsConstructor
 public class BenchmarkController {
 

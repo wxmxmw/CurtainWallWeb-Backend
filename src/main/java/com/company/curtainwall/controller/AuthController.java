@@ -14,8 +14,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
-@RequestMapping("api/auth")
+@RequestMapping({"/api/auth", "/auth"})
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -40,7 +43,7 @@ public class AuthController {
     }
 
     @GetMapping("/profile")
-    public ApiResponse<UserDto> profile() {
+    public Map<String, Object> profile() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
@@ -59,7 +62,11 @@ public class AuthController {
         userDto.setRole(user.getRole());
         userDto.setLastLoginAt(user.getLastLoginAt());
 
-        return ApiResponse.success(userDto);
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("data", userDto);
+        response.put("user", userDto);
+        return response;
     }
 
     @PostMapping("/logout")

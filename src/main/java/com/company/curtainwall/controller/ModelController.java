@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/corrosion/models")
+@RequestMapping({"/api/corrosion/models", "/models"})
 @RequiredArgsConstructor
 public class ModelController {
 

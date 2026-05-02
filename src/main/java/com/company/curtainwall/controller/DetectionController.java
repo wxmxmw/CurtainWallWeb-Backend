@@ -29,7 +29,7 @@ public class DetectionController {
      * 4.1 同步检测
      * 文档要求: 直接返回 image_base64, metrics 等字段在根对象
      */
-    @PostMapping("/api/corrosion/detect")
+    @PostMapping({"/api/corrosion/detect", "/detect"})
     public Map<String, Object> detectSync(
             @RequestParam("file") MultipartFile file,
             @RequestParam("model") String model,
@@ -72,7 +72,7 @@ public class DetectionController {
      * 4.2 提交异步任务
      * 文档要求: { "success": true, "job_id": "...", "status": "..." }
      */
-    @PostMapping("/api/corrosion/detect/enqueue")
+    @PostMapping({"/api/corrosion/detect/enqueue", "/detect/enqueue"})
     public Map<String, Object> detectAsync(
             @RequestParam("file") MultipartFile file,
             @RequestParam("model") String model,
@@ -98,7 +98,7 @@ public class DetectionController {
     /**
      * 4.3 查询任务状态/结果
      */
-    @GetMapping("/api/corrosion/jobs/{jobId}")
+    @GetMapping({"/api/corrosion/jobs/{jobId}", "/jobs/{jobId}"})
     public Map<String, Object> getJob(@PathVariable String jobId) {
         BizDetectionTask task = taskService.lambdaQuery()
                 .eq(BizDetectionTask::getJobId, jobId)
@@ -160,7 +160,7 @@ public class DetectionController {
      * 5.1 提交数据集检测
      * 文档要求: { "success": true, "data": { "batch_no": ... } }
      */
-    @PostMapping("/api/corrosion/detect/batch")
+    @PostMapping({"/api/corrosion/detect/batch", "/detect/batch"})
     public ApiResponse<?> detectBatch(
             @RequestParam("files") MultipartFile[] files,
             @RequestParam(value = "dataset_name", required = false) String datasetName,

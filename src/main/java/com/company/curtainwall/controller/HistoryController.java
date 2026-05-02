@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @RestController
 // 【关键修改1】类路径改为公共父路径 /corrosion
 // 这样我们才能在方法里灵活定义后面是接 /history 还是直接接 /batch
-@RequestMapping("/api/corrosion")
+@RequestMapping({"/api/corrosion", ""})
 public class HistoryController {
 
     @Autowired
@@ -135,6 +135,36 @@ public class HistoryController {
      * 格式1 (你报错的那个): /corrosion/history/batches/{batchNo}
      * 格式2 (你提到的另一个): /corrosion/batch/{batchNo}
      */
+    /**
+     * 6.2 获取单次检测详情
+     * 兼容第二版前端转发路径: /history/single/{jobId}
+     */
+    @GetMapping("/history/single/{jobId}")
+    public ApiResponse<?> getSingleDetails(@PathVariable String jobId) {
+        Long userId = getCurrentUserId();
+
+        BizDetectionTask task = taskService.lambdaQuery()
+                .eq(BizDetectionTask::getJobId, jobId)
+                .eq(BizDetectionTask::getUserId, userId)
+                .one();
+
+        if (task == null) {
+            return ApiResponse.error("未找到指定任务");
+        }
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("job_id", task.getJobId());
+        data.put("model", task.getModelName());
+        data.put("status", task.getStatus());
+        data.put("created_at", task.getCreatedAt());
+        data.put("input_image", task.getInputImagePath() != null ? "/" + task.getInputImagePath().replace("\\", "/") : null);
+        data.put("output_image", task.getOutputImagePath() != null ? "/" + task.getOutputImagePath().replace("\\", "/") : null);
+        data.put("metrics", task.getResultMetrics());
+        data.put("error_msg", task.getErrorMsg());
+
+        return ApiResponse.success(data);
+    }
+
     @GetMapping({
             "/batch/{batchNo}",           // 对应 /corrosion/batch/...
             "/history/batches/{batchNo}"  // 对应 /corrosion/history/batches/...
